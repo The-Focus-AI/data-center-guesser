@@ -1,0 +1,39 @@
+@import "tailwindcss";
+@import "leaflet/dist/leaflet.css";
+
+@layer base {
+  body {
+    font-family: 'Geist', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
+    letter-spacing: -0.015em;
+    background-color: #09090b;
+    color: #fafafa;
+  }
+
+  code, pre, .font-mono {
+    font-family: 'Geist Mono', ui-monospace, SFMono-Regular, monospace;
+    letter-spacing: -0.02em;
+    font-feature-settings: "tnum" on, "zero" on;
+  }
+}
+
+/* Minimal Swiss styling for Leaflet satellite containers */
+.leaflet-container {
+  background-color: #09090b !important;
+  font-family: 'Geist Mono', monospace !important;
+}
+
+.leaflet-control-attribution {
+  background: rgba(9, 9, 11, 0.85) !important;
+  color: #71717a !important;
+  font-size: 9px !important;
+  font-family: 'Geist Mono', monospace !important;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  border-top: 1px solid #27272a;
+  border-left: 1px solid #27272a;
+  padding: 2px 6px !important;
+}
+
+.leaflet-control-attribution a {
+  color: #a1a1aa !important;
+}
