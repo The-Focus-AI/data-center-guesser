@@ -3,6 +3,7 @@ import {
   CURATED_PAIRS,
   FACILITY_LOCATIONS,
   type DataCenterSubtype,
+  type DifficultyLevel,
   type FacilityLocation,
   type FacilityPair,
 } from './data/facilities';
@@ -10,6 +11,8 @@ import { SatellitePane } from './components/SatellitePane';
 import { AtlasDirectory } from './components/AtlasDirectory';
 import { FieldGuideModal } from './components/FieldGuideModal';
 import { TaxonomyView } from './components/TaxonomyView';
+import { PowerGridView } from './components/PowerGridView';
+import { SiteWalkthroughView } from './components/SiteWalkthroughView';
 import { AccuracyModal } from './components/AccuracyModal';
 import {
   loadAnalyticsStore,
@@ -18,38 +21,76 @@ import {
   BASELINE_BENCHMARK_ACCURACY,
   type AnalyticsStore,
 } from './utils/analytics';
+import {
+  parseUrlState,
+  buildUrlSearch,
+  type AppTab,
+} from './utils/urlState';
 
 export function App() {
-  const [activeTab, setActiveTab] = useState<'arena' | 'taxonomy' | 'atlas'>('arena');
+  const initialUrl = useMemo(() => parseUrlState(), []);
 
-  // Default to Connecticut Only + No Hyperscalers as requested
-  const [connecticutOnly, setConnecticutOnly] = useState(true);
-  const [excludeHyperscalers, setExcludeHyperscalers] = useState(true);
-  const [zoningSubtypeFilter, setZoningSubtypeFilter] = useState<DataCenterSubtype | 'all'>('all');
-
-  const [roundIndex, setRoundIndex] = useState(0);
-  const [customPair, setCustomPair] = useState<FacilityPair | null>(null);
-  const [swapSides, setSwapSides] = useState<boolean>(() => Math.random() > 0.5);
-
-  // Game state
-  const [selectedSide, setSelectedSide] = useState<'A' | 'B' | null>(null);
-  const [showClue, setShowClue] = useState(false);
-  const [showMapLabels, setShowMapLabels] = useState(false);
-  const [isGuideOpen, setIsGuideOpen] = useState(false);
-  const [isAccuracyOpen, setIsAccuracyOpen] = useState(false);
-
-  // Persistent Analytics + Session Scoreboard
-  const [analytics, setAnalytics] = useState<AnalyticsStore>(() =>
-    loadAnalyticsStore()
+  const [activeTab, setActiveTab] = useState<AppTab>(initialUrl.tab);
+  const [focusedGridFacilityId, setFocusedGridFacilityId] = useState<string | null>(
+    initialUrl.facilityId
   );
+  const [focusedGridPlantId, setFocusedGridPlantId] = useState<string | null>(
+    initialUrl.plantId
+  );
+  const [gridRegionId, setGridRegionId] = useState<string | null>(
+    initialUrl.regionId
+  );
+  const [gridLedgerMode, setGridLedgerMode] = useState<
+    'datacenters' | 'stations' | 'lines'
+  >(initialUrl.ledgerMode);
+  const [walkthroughTownId, setWalkthroughTownId] = useState<string | null>(
+    initialUrl.walkthroughTownId
+  );
+  const [walkthroughAcres, setWalkthroughAcres] = useState<number | null>(
+    initialUrl.walkthroughAcres
+  );
+  const [walkthroughGpuPct, setWalkthroughGpuPct] = useState<number | null>(
+    initialUrl.walkthroughGpuPct
+  );
+  const [sharedSearchQuery, setSharedSearchQuery] = useState<string>(
+    initialUrl.searchQuery
+  );
+
+  // Atlas filter state
+  const [atlasTypeFilter, setAtlasTypeFilter] = useState<'all' | 'datacenter' | 'decoy'>(
+    initialUrl.atlasTypeFilter
+  );
+  const [atlasSubtypeFilter, setAtlasSubtypeFilter] = useState<string>(
+    initialUrl.atlasSubtypeFilter
+  );
+  const [atlasDifficultyFilter, setAtlasDifficultyFilter] = useState<
+    DifficultyLevel | 'all'
+  >(initialUrl.atlasDifficultyFilter);
+
+  // Global scope filters
+  const [connecticutOnly, setConnecticutOnly] = useState(initialUrl.connecticutOnly);
+  const [excludeHyperscalers, setExcludeHyperscalers] = useState(
+    initialUrl.excludeHyperscalers
+  );
+  const [zoningSubtypeFilter, setZoningSubtypeFilter] = useState<
+    DataCenterSubtype | 'all'
+  >(initialUrl.zoningSubtypeFilter);
+
+  const isRegionalCorridor = useCallback((stateOrCountry: string) => {
+    return (
+      stateOrCountry.includes('CT') ||
+      stateOrCountry.includes('MA') ||
+      stateOrCountry.includes('NY')
+    );
+  }, []);
 
   const filteredPairs = useMemo(() => {
     const matches = CURATED_PAIRS.filter((p) => {
       if (connecticutOnly) {
-        const isCT =
-          p.dataCenter.stateOrCountry.includes('CT') &&
-          p.decoy.stateOrCountry.includes('CT');
-        if (!isCT) return false;
+        const isReg =
+          isRegionalCorridor(p.dataCenter.stateOrCountry) &&
+          isRegionalCorridor(p.decoy.stateOrCountry);
+        if (!isReg) return false;
       }
       if (excludeHyperscalers) {
         if (
@@ -68,12 +109,136 @@ export function App() {
     });
 
     return matches.length > 0 ? matches : CURATED_PAIRS;
-  }, [connecticutOnly, excludeHyperscalers, zoningSubtypeFilter]);
+  }, [connecticutOnly, excludeHyperscalers, zoningSubtypeFilter, isRegionalCorridor]);
+
+  const [roundIndex, setRoundIndex] = useState(() => {
+    if (initialUrl.pairId) {
+      const idx = filteredPairs.findIndex((p) => p.id === initialUrl.pairId);
+      if (idx >= 0) return idx;
+    }
+    return 0;
+  });
+  const [customPair, setCustomPair] = useState<FacilityPair | null>(
+    initialUrl.customPair
+  );
+  const [swapSides, setSwapSides] = useState<boolean>(() => Math.random() > 0.5);
+
+  // Game state
+  const [selectedSide, setSelectedSide] = useState<'A' | 'B' | null>(null);
+  const [showClue, setShowClue] = useState(initialUrl.showClue);
+  const [showMapLabels, setShowMapLabels] = useState(initialUrl.showMapLabels);
+  const [showPowerLines, setShowPowerLines] = useState(initialUrl.showPowerLines);
+  const [isGuideOpen, setIsGuideOpen] = useState(initialUrl.modal === 'guide');
+  const [isAccuracyOpen, setIsAccuracyOpen] = useState(
+    initialUrl.modal === 'accuracy'
+  );
+  const [copiedLink, setCopiedLink] = useState(false);
+
+  // Persistent Analytics + Session Scoreboard
+  const [analytics, setAnalytics] = useState<AnalyticsStore>(() =>
+    loadAnalyticsStore()
+  );
 
   const currentPair: FacilityPair = useMemo(() => {
     if (customPair) return customPair;
     return filteredPairs[roundIndex % filteredPairs.length] || CURATED_PAIRS[0];
   }, [customPair, filteredPairs, roundIndex]);
+
+  // Keep browser address bar synced with deep-linkable state
+  useEffect(() => {
+    const nextUrl = buildUrlSearch({
+      tab: activeTab,
+      connecticutOnly,
+      excludeHyperscalers,
+      zoningSubtypeFilter,
+      currentPairId: currentPair?.id ?? null,
+      customPair,
+      showPowerLines,
+      showMapLabels,
+      showClue,
+      facilityId: focusedGridFacilityId,
+      plantId: focusedGridPlantId,
+      regionId: gridRegionId,
+      ledgerMode: gridLedgerMode,
+      walkthroughTownId,
+      walkthroughAcres,
+      walkthroughGpuPct,
+      searchQuery: sharedSearchQuery,
+      atlasTypeFilter,
+      atlasSubtypeFilter,
+      atlasDifficultyFilter,
+      modal: isGuideOpen ? 'guide' : isAccuracyOpen ? 'accuracy' : null,
+    });
+
+    const currentFull = window.location.search || window.location.pathname;
+    if (nextUrl !== currentFull) {
+      window.history.replaceState(null, '', nextUrl);
+    }
+  }, [
+    activeTab,
+    connecticutOnly,
+    excludeHyperscalers,
+    zoningSubtypeFilter,
+    currentPair,
+    customPair,
+    showPowerLines,
+    showMapLabels,
+    showClue,
+    focusedGridFacilityId,
+    focusedGridPlantId,
+    gridRegionId,
+    gridLedgerMode,
+    walkthroughTownId,
+    walkthroughAcres,
+    walkthroughGpuPct,
+    sharedSearchQuery,
+    atlasTypeFilter,
+    atlasSubtypeFilter,
+    atlasDifficultyFilter,
+    isGuideOpen,
+    isAccuracyOpen,
+  ]);
+
+  // Listen for browser Back/Forward navigation
+  useEffect(() => {
+    const onPopState = () => {
+      const parsed = parseUrlState(window.location.search);
+      setActiveTab(parsed.tab);
+      setConnecticutOnly(parsed.connecticutOnly);
+      setExcludeHyperscalers(parsed.excludeHyperscalers);
+      setZoningSubtypeFilter(parsed.zoningSubtypeFilter);
+      setCustomPair(parsed.customPair);
+      if (parsed.pairId) {
+        const idx = CURATED_PAIRS.findIndex((p) => p.id === parsed.pairId);
+        if (idx >= 0) setRoundIndex(idx);
+      }
+      setShowPowerLines(parsed.showPowerLines);
+      setShowMapLabels(parsed.showMapLabels);
+      setShowClue(parsed.showClue);
+      setFocusedGridFacilityId(parsed.facilityId);
+      setFocusedGridPlantId(parsed.plantId);
+      setGridRegionId(parsed.regionId);
+      setGridLedgerMode(parsed.ledgerMode);
+      setWalkthroughTownId(parsed.walkthroughTownId);
+      setWalkthroughAcres(parsed.walkthroughAcres);
+      setWalkthroughGpuPct(parsed.walkthroughGpuPct);
+      setSharedSearchQuery(parsed.searchQuery);
+      setAtlasTypeFilter(parsed.atlasTypeFilter);
+      setAtlasSubtypeFilter(parsed.atlasSubtypeFilter);
+      setAtlasDifficultyFilter(parsed.atlasDifficultyFilter);
+      setIsGuideOpen(parsed.modal === 'guide');
+      setIsAccuracyOpen(parsed.modal === 'accuracy');
+      setSelectedSide(null);
+    };
+    window.addEventListener('popstate', onPopState);
+    return () => window.removeEventListener('popstate', onPopState);
+  }, []);
+
+  const handleCopyDeepLink = useCallback(() => {
+    navigator.clipboard.writeText(window.location.href);
+    setCopiedLink(true);
+    setTimeout(() => setCopiedLink(false), 1800);
+  }, []);
 
   const facilityA = swapSides ? currentPair.decoy : currentPair.dataCenter;
   const facilityB = swapSides ? currentPair.dataCenter : currentPair.decoy;
@@ -112,7 +277,7 @@ export function App() {
   const handleRandomMixPair = useCallback(() => {
     const dcs = FACILITY_LOCATIONS.filter((f) => {
       if (!f.isDataCenter) return false;
-      if (connecticutOnly && !f.stateOrCountry.includes('CT')) return false;
+      if (connecticutOnly && !isRegionalCorridor(f.stateOrCountry)) return false;
       if (
         excludeHyperscalers &&
         (f.subtype === 'Hyperscale' || f.subtype === 'AI Supercluster')
@@ -126,7 +291,7 @@ export function App() {
     });
     const decoys = FACILITY_LOCATIONS.filter((f) => {
       if (f.isDataCenter) return false;
-      if (connecticutOnly && !f.stateOrCountry.includes('CT')) return false;
+      if (connecticutOnly && !isRegionalCorridor(f.stateOrCountry)) return false;
       return true;
     });
 
@@ -147,13 +312,13 @@ export function App() {
     setSelectedSide(null);
     setShowClue(false);
     setSwapSides(Math.random() > 0.5);
-  }, [connecticutOnly, excludeHyperscalers, zoningSubtypeFilter]);
+  }, [connecticutOnly, excludeHyperscalers, zoningSubtypeFilter, isRegionalCorridor]);
 
   const handlePlayFacilityFromAtlas = useCallback(
     (facility: FacilityLocation) => {
       const opponents = FACILITY_LOCATIONS.filter((f) => {
         if (f.isDataCenter === facility.isDataCenter) return false;
-        if (connecticutOnly && !f.stateOrCountry.includes('CT')) return false;
+        if (connecticutOnly && !isRegionalCorridor(f.stateOrCountry)) return false;
         if (
           excludeHyperscalers &&
           f.isDataCenter &&
@@ -186,7 +351,22 @@ export function App() {
       setSwapSides(Math.random() > 0.5);
       setActiveTab('arena');
     },
-    [connecticutOnly, excludeHyperscalers]
+    [connecticutOnly, excludeHyperscalers, isRegionalCorridor]
+  );
+
+  const handleInspectPowerGrid = useCallback(
+    (facility: FacilityLocation) => {
+      if (!isRegionalCorridor(facility.stateOrCountry)) {
+        setConnecticutOnly(false);
+      }
+      if (facility.subtype === 'Hyperscale' || facility.subtype === 'AI Supercluster') {
+        setExcludeHyperscalers(false);
+      }
+      setFocusedGridPlantId(null);
+      setFocusedGridFacilityId(facility.id);
+      setActiveTab('power');
+    },
+    [isRegionalCorridor]
   );
 
   // Keyboard shortcuts
@@ -260,7 +440,7 @@ export function App() {
                   : 'text-zinc-400 hover:text-white'
               }`}
             >
-              CT Only (No Hyperscalers)
+              CT · MA · Hudson Valley
             </button>
 
             <button
@@ -307,6 +487,32 @@ export function App() {
 
             <button
               type="button"
+              onClick={() => {
+                setActiveTab('power');
+              }}
+              className={`px-3 py-1.5 transition cursor-pointer whitespace-nowrap ${
+                activeTab === 'power'
+                  ? 'bg-amber-400 text-black font-semibold'
+                  : 'text-amber-400 hover:text-amber-300'
+              }`}
+            >
+              ⚡ Power Stations &amp; Grid
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setActiveTab('walkthrough')}
+              className={`px-3 py-1.5 transition cursor-pointer whitespace-nowrap ${
+                activeTab === 'walkthrough'
+                  ? 'bg-emerald-400 text-black font-semibold'
+                  : 'text-emerald-400 hover:text-emerald-300'
+              }`}
+            >
+              Litchfield Site Walkthrough
+            </button>
+
+            <button
+              type="button"
               onClick={() => setActiveTab('taxonomy')}
               className={`px-3 py-1.5 transition cursor-pointer whitespace-nowrap ${
                 activeTab === 'taxonomy'
@@ -346,13 +552,55 @@ export function App() {
             >
               Field Guide
             </button>
+
+            <button
+              type="button"
+              onClick={handleCopyDeepLink}
+              title="Copy deep link to current view"
+              className={`px-2.5 py-1 border transition cursor-pointer whitespace-nowrap ${
+                copiedLink
+                  ? 'border-emerald-500 text-emerald-400 bg-emerald-950/30'
+                  : 'border-zinc-800 text-zinc-400 hover:text-white hover:border-zinc-600'
+              }`}
+            >
+              {copiedLink ? '✓ Copied' : 'Permalink'}
+            </button>
           </nav>
         </div>
       </header>
 
       {/* Main Content */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 pb-12">
-        {activeTab === 'taxonomy' ? (
+        {activeTab === 'walkthrough' ? (
+          <SiteWalkthroughView
+            initialTownId={walkthroughTownId}
+            initialAcres={walkthroughAcres}
+            initialGpuPct={walkthroughGpuPct}
+            onChangeParams={({ townId, acres, gpuPct }) => {
+              setWalkthroughTownId(townId);
+              setWalkthroughAcres(acres);
+              setWalkthroughGpuPct(gpuPct);
+            }}
+          />
+        ) : activeTab === 'power' ? (
+          <PowerGridView
+            connecticutOnly={connecticutOnly}
+            onToggleConnecticutOnly={() => setConnecticutOnly((p) => !p)}
+            excludeHyperscalers={excludeHyperscalers}
+            onToggleExcludeHyperscalers={() => setExcludeHyperscalers((p) => !p)}
+            selectedFacilityId={focusedGridFacilityId}
+            selectedPlantId={focusedGridPlantId}
+            initialRegionId={gridRegionId}
+            initialLedgerMode={gridLedgerMode}
+            initialSearchQuery={sharedSearchQuery}
+            onSelectFacilityId={setFocusedGridFacilityId}
+            onSelectPlantId={setFocusedGridPlantId}
+            onChangeRegionId={setGridRegionId}
+            onChangeLedgerMode={setGridLedgerMode}
+            onChangeSearchQuery={setSharedSearchQuery}
+            onPlayFacility={handlePlayFacilityFromAtlas}
+          />
+        ) : activeTab === 'taxonomy' ? (
           <TaxonomyView
             onSelectTierForAtlas={(subtype) => {
               setConnecticutOnly(false);
@@ -372,7 +620,16 @@ export function App() {
             onToggleExcludeHyperscalers={() => setExcludeHyperscalers((p) => !p)}
             zoningSubtypeFilter={zoningSubtypeFilter}
             onChangeZoningSubtypeFilter={setZoningSubtypeFilter}
+            initialSearchQuery={sharedSearchQuery}
+            initialTypeFilter={atlasTypeFilter}
+            initialSubtypeFilter={atlasSubtypeFilter}
+            initialDifficultyFilter={atlasDifficultyFilter}
+            onChangeSearchQuery={setSharedSearchQuery}
+            onChangeTypeFilter={setAtlasTypeFilter}
+            onChangeSubtypeFilter={setAtlasSubtypeFilter}
+            onChangeDifficultyFilter={setAtlasDifficultyFilter}
             onPlayFacility={handlePlayFacilityFromAtlas}
+            onInspectPowerGrid={handleInspectPowerGrid}
           />
         ) : (
           <div className="border-x border-b border-zinc-800">
@@ -424,6 +681,18 @@ export function App() {
                   }`}
                 >
                   Labels {showMapLabels ? 'On' : 'Off'}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setShowPowerLines((prev) => !prev)}
+                  className={`px-3 py-1.5 border transition cursor-pointer ${
+                    showPowerLines
+                      ? 'border-amber-400 text-amber-300 bg-amber-950/30'
+                      : 'border-zinc-800 text-zinc-400 hover:text-white'
+                  }`}
+                >
+                  ⚡ Power Lines {showPowerLines ? 'On' : 'Off'}
                 </button>
 
                 <button
@@ -524,18 +793,22 @@ export function App() {
                 facility={facilityA}
                 label="A"
                 showLabels={showMapLabels}
+                showPowerLines={showPowerLines}
                 isRevealed={isRevealed}
                 isSelected={selectedSide === 'A'}
                 onSelect={() => handleSelectSide('A')}
+                onInspectPowerGrid={handleInspectPowerGrid}
               />
               <SatellitePane
                 key={`${currentPair.id}-B-${facilityB.id}`}
                 facility={facilityB}
                 label="B"
                 showLabels={showMapLabels}
+                showPowerLines={showPowerLines}
                 isRevealed={isRevealed}
                 isSelected={selectedSide === 'B'}
                 onSelect={() => handleSelectSide('B')}
+                onInspectPowerGrid={handleInspectPowerGrid}
               />
             </div>
           </div>

@@ -37,3 +37,16 @@
 .leaflet-control-attribution a {
   color: #a1a1aa !important;
 }
+
+.custom-power-plant-marker,
+.custom-dc-marker {
+  background: transparent !important;
+  border: none !important;
+  transition: transform 0.12s ease;
+}
+
+.custom-power-plant-marker:hover,
+.custom-dc-marker:hover {
+  transform: scale(1.18);
+  z-index: 900 !important;
+}

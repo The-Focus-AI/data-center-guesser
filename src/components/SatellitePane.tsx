@@ -1,15 +1,29 @@
-import { useEffect } from 'react';
-import { MapContainer, TileLayer, useMap, useMapEvents } from 'react-leaflet';
-import { ZoomIn, ZoomOut, RotateCcw, ArrowUpRight } from 'lucide-react';
+import { useEffect, useMemo } from 'react';
+import {
+  MapContainer,
+  TileLayer,
+  Polyline,
+  CircleMarker,
+  Tooltip,
+  useMap,
+  useMapEvents,
+} from 'react-leaflet';
+import { ZoomIn, ZoomOut, RotateCcw, ArrowUpRight, Zap } from 'lucide-react';
 import type { FacilityLocation } from '../data/facilities';
+import {
+  TRANSMISSION_LINES,
+  POWER_SUBSTATIONS,
+} from '../data/powerGridData';
 
 interface SatellitePaneProps {
   facility: FacilityLocation;
   label: 'A' | 'B';
   showLabels: boolean;
+  showPowerLines?: boolean;
   isRevealed: boolean;
   isSelected: boolean;
   onSelect: () => void;
+  onInspectPowerGrid?: (facility: FacilityLocation) => void;
 }
 
 function MapController({ lat, lng, zoom }: { lat: number; lng: number; zoom: number }) {
@@ -79,10 +93,32 @@ export function SatellitePane({
   facility,
   label,
   showLabels,
+  showPowerLines = false,
   isRevealed,
   isSelected,
   onSelect,
+  onInspectPowerGrid,
 }: SatellitePaneProps) {
+  const nearbyLines = useMemo(() => {
+    if (!showPowerLines) return [];
+    return TRANSMISSION_LINES.filter((line) =>
+      line.coordinates.some(
+        ([lat, lng]) =>
+          Math.abs(lat - facility.lat) < 0.25 &&
+          Math.abs(lng - facility.lng) < 0.25
+      )
+    );
+  }, [showPowerLines, facility.lat, facility.lng]);
+
+  const nearbySubstations = useMemo(() => {
+    if (!showPowerLines) return [];
+    return POWER_SUBSTATIONS.filter(
+      (sub) =>
+        Math.abs(sub.lat - facility.lat) < 0.2 &&
+        Math.abs(sub.lng - facility.lng) < 0.2
+    );
+  }, [showPowerLines, facility.lat, facility.lng]);
+
   return (
     <div className="flex flex-col bg-[#09090b] justify-between group">
       {/* Satellite Viewport — Click anywhere on the map to select */}
@@ -97,7 +133,7 @@ export function SatellitePane({
         <MapContainer
           center={[facility.lat, facility.lng]}
           zoom={facility.defaultZoom}
-          minZoom={14}
+          minZoom={11}
           maxZoom={19}
           zoomControl={false}
           dragging={false}
@@ -128,6 +164,46 @@ export function SatellitePane({
               opacity={0.85}
             />
           )}
+
+          {showPowerLines &&
+            nearbyLines.map((line) => (
+              <Polyline
+                key={line.id}
+                positions={line.coordinates}
+                pathOptions={{
+                  color: line.voltageKV >= 345 ? '#f97316' : '#38bdf8',
+                  weight: line.voltageKV >= 345 ? 3.5 : 2.5,
+                  opacity: 0.9,
+                }}
+              >
+                <Tooltip sticky>
+                  <span className="font-mono text-xs">
+                    ⚡ {line.voltageKV} kV Line ({line.sub1} ↔ {line.sub2})
+                  </span>
+                </Tooltip>
+              </Polyline>
+            ))}
+
+          {showPowerLines &&
+            nearbySubstations.map((sub) => (
+              <CircleMarker
+                key={sub.id}
+                center={[sub.lat, sub.lng]}
+                radius={6}
+                pathOptions={{
+                  color: '#ffffff',
+                  fillColor: sub.maxVoltageKV >= 345 ? '#f97316' : '#38bdf8',
+                  fillOpacity: 0.95,
+                  weight: 2,
+                }}
+              >
+                <Tooltip>
+                  <span className="font-mono text-xs">
+                    Substation: {sub.name} ({sub.maxVoltageKV} kV)
+                  </span>
+                </Tooltip>
+              </CircleMarker>
+            ))}
 
           <CustomZoomControls
             lat={facility.lat}
@@ -245,7 +321,20 @@ export function SatellitePane({
               </ul>
             </div>
 
-            <div className="flex items-center justify-end gap-4 pt-1 font-mono text-[11px]">
+            <div className="flex items-center justify-between gap-4 pt-1 font-mono text-[11px]">
+              {facility.isDataCenter && onInspectPowerGrid ? (
+                <button
+                  type="button"
+                  onClick={() => onInspectPowerGrid(facility)}
+                  className="inline-flex items-center gap-1.5 text-amber-400 hover:text-amber-300 transition cursor-pointer"
+                >
+                  <Zap className="w-3 h-3" />
+                  <span>[VIEW POWER GRID TIE-IN →]</span>
+                </button>
+              ) : (
+                <span />
+              )}
+
               <a
                 href={`https://www.google.com/maps/@${facility.lat},${facility.lng},18z/data=!3m1!1e3`}
                 target="_blank"

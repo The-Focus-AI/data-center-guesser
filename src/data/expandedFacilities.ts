@@ -4113,10 +4113,367 @@ export const EXPANDED_FACILITY_LOCATIONS: FacilityLocation[] = [
     ],
     summary: 'Analytics software giant SAS Institute’s 900-acre headquarters in Cary, NC.',
     clue: 'Wooded parkland office campus with lakes and commuter parking decks.'
+  },
+  // ============================================================================
+  // MASSACHUSETTS & HUDSON VALLEY (NY) DATA CENTERS & DECOYS
+  // ============================================================================
+  {
+    id: 'dc-ma-mghpcc-holyoke',
+    name: 'MGHPCC — Massachusetts Green High Performance Computing Center',
+    operator: 'MIT / Harvard / BU / Northeastern / UMass Consortium',
+    city: 'Holyoke (Pioneer Valley)',
+    stateOrCountry: 'MA, USA',
+    lat: 42.2033,
+    lng: -72.6061,
+    defaultZoom: 18,
+    isDataCenter: true,
+    subtype: 'Enterprise Data Center',
+    difficulty: 'medium',
+    powerCapacityMW: '15 MW',
+    sqft: '90,000 sq ft',
+    visualTells: [
+      'Dense rooftop chilled-water cooling towers beside the Connecticut River hydroelectric canal',
+      'Fenced standby diesel generator and utility transformer yard on the north side',
+      'Windowless upper compute hall with minimal employee parking'
+    ],
+    summary: 'University consortium supercomputing center in Holyoke, MA powered directly by Holyoke Gas & Electric hydroelectric generation on the Connecticut River.',
+    clue: 'Look for the concentrated rooftop cooling towers and substation yard beside the Holyoke canal.'
+  },
+  {
+    id: 'dc-ma-digital-realty-bedford',
+    name: 'Digital Realty Bedford Data Center (105 Crosby Dr / BOS12)',
+    operator: 'Digital Realty',
+    city: 'Bedford (Route 128)',
+    stateOrCountry: 'MA, USA',
+    lat: 42.5122,
+    lng: -71.2456,
+    defaultZoom: 18,
+    isDataCenter: true,
+    subtype: 'Colocation (COLO)',
+    difficulty: 'medium',
+    powerCapacityMW: '22 MW',
+    sqft: '236,000 sq ft',
+    visualTells: [
+      'Massive rooftop array of 40+ precision DX condensers and cooling units',
+      'Row of green acoustic diesel generator enclosures lining the service perimeter',
+      'Hardened perimeter gating off Route 3 / Route 128 tech corridor'
+    ],
+    summary: 'Major Route 128 enterprise and cloud colocation campus in Bedford, MA serving biotech, defense, and financial workloads.',
+    clue: 'Count the dozens of rooftop cooling units and the row of backup generators along the rear drive.'
+  },
+  {
+    id: 'dc-ma-tierpoint-marlborough',
+    name: 'TierPoint Marlborough Data Center (34 St. Martin Dr)',
+    operator: 'TierPoint',
+    city: 'Marlborough',
+    stateOrCountry: 'MA, USA',
+    lat: 42.3396,
+    lng: -71.5944,
+    defaultZoom: 18,
+    isDataCenter: true,
+    subtype: 'Colocation (COLO)',
+    difficulty: 'medium',
+    powerCapacityMW: '12 MW',
+    sqft: '104,000 sq ft',
+    visualTells: [
+      'Concentrated rooftop CRAC condensers and dry-cooler banks',
+      'Fenced multi-unit diesel generator yard and fuel tanks on the flank',
+      'Very low car count relative to adjacent I-495 office buildings'
+    ],
+    summary: 'Central Massachusetts colocation hub at the I-495 / I-290 interchange in Marlborough, MA.',
+    clue: 'Look for the dense rooftop HVAC equipment and fenced generator yard with almost no commuter cars.'
+  },
+  {
+    id: 'dc-ma-gdms-pittsfield-hpc',
+    name: 'Berkshire Defense & Engineering HPC Data Center (100 Plastics Ave)',
+    operator: 'General Dynamics Mission Systems',
+    city: 'Pittsfield (Berkshires)',
+    stateOrCountry: 'MA, USA',
+    lat: 42.4526,
+    lng: -73.2312,
+    defaultZoom: 17,
+    isDataCenter: true,
+    subtype: 'Enterprise Data Center',
+    difficulty: 'hard',
+    powerCapacityMW: '8 MW',
+    sqft: '75,000 sq ft',
+    visualTells: [
+      'Dedicated Eversource 115 kV step-down substation and chilled-water plant adjacent to the hardened hall',
+      'Double-fenced security perimeter and badge checkpoints in the Berkshires just north of Litchfield County',
+      'Heavy rooftop heat rejection units over the secure compute wing'
+    ],
+    summary: 'High-security defense systems engineering and HPC simulation center in Pittsfield, MA in the Berkshires.',
+    clue: 'Spot the on-site substation step-down yard and concentrated rooftop chillers inside the secured perimeter.'
+  },
+  {
+    id: 'dc-ny-ibm-poughkeepsie-mainframe',
+    name: 'IBM Poughkeepsie Quantum & Mainframe Data Center (2455 South Rd)',
+    operator: 'IBM / 1547 Critical Systems',
+    city: 'Poughkeepsie (Hudson Valley)',
+    stateOrCountry: 'NY, USA',
+    lat: 41.6524,
+    lng: -73.9316,
+    defaultZoom: 17,
+    isDataCenter: true,
+    subtype: 'Enterprise Data Center',
+    difficulty: 'medium',
+    powerCapacityMW: '28 MW',
+    sqft: '180,000 sq ft',
+    visualTells: [
+      'Central chilled-water plant and 115 kV Central Hudson substation on the Hudson River bank',
+      'Windowless high-bay compute halls housing IBM Quantum System Two and zSystems mainframes',
+      'Backup generator pads and cryogenic/chilled-water pipe bridges'
+    ],
+    summary: 'Flagship Mid-Hudson Valley compute complex in Poughkeepsie, NY where IBM builds and operates its global Quantum computation center and enterprise cloud halls.',
+    clue: 'Look for the high-voltage substation, chilled-water pipe bridges, and windowless compute halls along Route 9.'
+  },
+  {
+    id: 'dc-ny-bloomberg-orangeburg',
+    name: 'Bloomberg LP Orangeburg Financial Data Center (155 Corporate Dr)',
+    operator: 'Bloomberg LP',
+    city: 'Orangeburg (Hudson Valley)',
+    stateOrCountry: 'NY, USA',
+    lat: 41.0442,
+    lng: -73.9614,
+    defaultZoom: 18,
+    isDataCenter: true,
+    subtype: 'Enterprise Data Center',
+    difficulty: 'easy',
+    powerCapacityMW: '32 MW',
+    sqft: '250,000 sq ft',
+    visualTells: [
+      'Regimented rows of rooftop cooling towers and chillers spanning the entire building',
+      'Massive fenced yard of 16+ backup diesel generators and dedicated O&R substation',
+      'Hardened K-rated security fencing and guardhouse'
+    ],
+    summary: 'Primary low-latency financial market data center in Orangeburg, NY (Rockland County, Lower Hudson Valley) powering Bloomberg Terminal infrastructure.',
+    clue: 'Unmistakable rows of rooftop chillers and a massive lineup of backup diesel generators.'
+  },
+  {
+    id: 'dc-ny-ipark84-fishkill-colo',
+    name: 'Hudson Valley iPark 84 Data Center Hall (East Fishkill)',
+    operator: '1547 Critical Systems / iPark 84',
+    city: 'East Fishkill (Hudson Valley)',
+    stateOrCountry: 'NY, USA',
+    lat: 41.5458,
+    lng: -73.8312,
+    defaultZoom: 17,
+    isDataCenter: true,
+    subtype: 'Colocation (COLO)',
+    difficulty: 'hard',
+    powerCapacityMW: '20 MW',
+    sqft: '140,000 sq ft',
+    visualTells: [
+      'Direct tie-in to the 115 kV / 345 kV East Fishkill industrial substation',
+      'Heavy rooftop cooling towers and utility pipe racks',
+      'Windowless reinforced concrete superstructure'
+    ],
+    summary: 'High-power Hudson Valley colocation and enterprise compute hall at the former IBM East Fishkill technology campus near I-84.',
+    clue: 'Look for the dedicated high-voltage switchyard and dense rooftop mechanical plant.'
+  },
+  {
+    id: 'dc-ny-ibm-watson-yorktown',
+    name: 'IBM Thomas J. Watson AI & Supercomputing Center (Yorktown Heights)',
+    operator: 'IBM Research',
+    city: 'Yorktown Heights (Hudson Valley)',
+    stateOrCountry: 'NY, USA',
+    lat: 41.2131,
+    lng: -73.8031,
+    defaultZoom: 17,
+    isDataCenter: true,
+    subtype: 'Enterprise Data Center',
+    difficulty: 'hard',
+    powerCapacityMW: '14 MW',
+    sqft: '95,000 sq ft (Compute Wing)',
+    visualTells: [
+      'Dedicated rear cooling tower plant and electrical substation tucked behind Eero Saarinen’s curved glass laboratory',
+      'Liquid-cooled AI supercomputer and quantum cryogenics mechanical annex',
+      'Isolated hilltop security perimeter in northern Westchester'
+    ],
+    summary: 'Global headquarters of IBM Research in the Hudson Valley housing AI supercomputers and quantum processors.',
+    clue: 'Spot the heavy industrial cooling tower plant and electrical yard tucked directly behind the crescent research building.'
+  },
+  {
+    id: 'decoy-ma-cs-wholesale-westfield',
+    name: 'C&S Wholesale Grocers Automated Freezer & Cold Storage (Westfield)',
+    operator: 'C&S Wholesale Grocers',
+    city: 'Westfield (Pioneer Valley)',
+    stateOrCountry: 'MA, USA',
+    lat: 42.1482,
+    lng: -72.7315,
+    defaultZoom: 17,
+    isDataCenter: false,
+    subtype: 'Cold Storage Logistics',
+    difficulty: 'hard',
+    sqft: '620,000 sq ft',
+    visualTells: [
+      'Rooftop ammonia refrigeration penthouses and insulated piping that mimic data center chillers',
+      'Giveaway: 90+ refrigerated semi-trailer dock doors and massive trailer staging yards',
+      'No N+1 diesel generator lineup'
+    ],
+    summary: 'Massive temperature-controlled grocery distribution complex in the Pioneer Valley near I-90.',
+    clue: 'Has heavy rooftop refrigeration pipes, but count the 90+ semi-trailer loading docks.'
+  },
+  {
+    id: 'decoy-ma-bjs-uxbridge-dist',
+    name: 'BJ’s Wholesale Club Regional Distribution Center',
+    operator: 'BJ’s Wholesale Club',
+    city: 'Uxbridge',
+    stateOrCountry: 'MA, USA',
+    lat: 42.0412,
+    lng: -71.6152,
+    defaultZoom: 17,
+    isDataCenter: false,
+    subtype: 'Distribution / Fulfillment Center',
+    difficulty: 'easy',
+    sqft: '680,000 sq ft',
+    visualTells: [
+      'Continuous 18-wheeler dock aprons along both long walls',
+      'Hundreds of parked semi-trailers and zero rooftop chiller arrays'
+    ],
+    summary: 'High-volume retail logistics center in Central Massachusetts.',
+    clue: 'Hundreds of 53-foot trailers lined up against cross-dock doors.'
+  },
+  {
+    id: 'decoy-ma-boyd-lee-berkshires',
+    name: 'Berkshire Precision Medical & Industrial Manufacturing Plant',
+    operator: 'Boyd / Berkshire Industrial',
+    city: 'Lee (Berkshires)',
+    stateOrCountry: 'MA, USA',
+    lat: 42.2915,
+    lng: -73.2418,
+    defaultZoom: 18,
+    isDataCenter: false,
+    subtype: 'EV / Aerospace Manufacturing',
+    difficulty: 'medium',
+    sqft: '145,000 sq ft',
+    visualTells: [
+      'Clean white industrial roof with standard factory air handlers and skylights',
+      'Employee shift parking lot and shipping docks off I-90 in the Berkshires',
+      'No backup generator bank or high-voltage switchyard'
+    ],
+    summary: 'Precision manufacturing facility in Lee, MA in the Berkshires.',
+    clue: 'Standard factory skylights, shipping bays, and no backup generator farm.'
+  },
+  {
+    id: 'decoy-ny-onsemi-fishkill-fab',
+    name: 'onsemi 300mm Semiconductor Wafer Fab (East Fishkill)',
+    operator: 'onsemi',
+    city: 'East Fishkill (Hudson Valley)',
+    stateOrCountry: 'NY, USA',
+    lat: 41.5432,
+    lng: -73.8245,
+    defaultZoom: 17,
+    isDataCenter: false,
+    subtype: 'Semiconductor Fab / Cleanroom',
+    difficulty: 'hard',
+    sqft: '560,000 sq ft',
+    visualTells: [
+      'Tall cylindrical bulk liquid nitrogen/argon gas separation towers and acid exhaust scrubbers',
+      'Cleanroom air-handling penthouses and large employee parking lots',
+      'Chemical tank farm rather than rows of containerized diesel generators'
+    ],
+    summary: '300mm power and image-sensor semiconductor wafer fabrication plant in East Fishkill, NY.',
+    clue: 'Look for the tall cryogenic nitrogen towers and cleanroom exhaust stacks characteristic of a wafer fab.'
+  },
+  {
+    id: 'decoy-ny-gap-fishkill-dist',
+    name: 'Gap Inc. Northeast E-Commerce Fulfillment Campus (Fishkill)',
+    operator: 'Gap Inc.',
+    city: 'Fishkill (Hudson Valley)',
+    stateOrCountry: 'NY, USA',
+    lat: 41.5245,
+    lng: -73.8962,
+    defaultZoom: 16,
+    isDataCenter: false,
+    subtype: 'Distribution / Fulfillment Center',
+    difficulty: 'easy',
+    sqft: '1,900,000 sq ft',
+    visualTells: [
+      'Expansive bare-roof warehouse buildings along Route 9 / I-84',
+      'Massive employee shift parking lots and hundreds of tractor-trailer bays'
+    ],
+    summary: 'Nearly 2-million-square-foot apparel fulfillment complex in Fishkill, NY.',
+    clue: 'Expansive bare roofs, huge employee parking lots, and semi-trailer yards.'
+  },
+  {
+    id: 'decoy-ny-regeneron-east-greenbush',
+    name: 'Regeneron Pharmaceuticals Biologics Campus (East Greenbush)',
+    operator: 'Regeneron Pharmaceuticals',
+    city: 'East Greenbush / Rensselaer (Hudson Valley)',
+    stateOrCountry: 'NY, USA',
+    lat: 42.6164,
+    lng: -73.7192,
+    defaultZoom: 16,
+    isDataCenter: false,
+    subtype: 'Corporate Office / Campus',
+    difficulty: 'medium',
+    sqft: '1,100,000 sq ft',
+    visualTells: [
+      'Multi-story employee parking garages and thousands of commuter cars',
+      'Windowed laboratory and office buildings connected by pedestrian skybridges'
+    ],
+    summary: 'Major Hudson Valley / Capital Region biopharmaceutical manufacturing and office campus.',
+    clue: 'Look at the huge employee parking garages and windowed laboratory wings.'
   }
 ];
 
 export const EXPANDED_CURATED_PAIRS: FacilityPair[] = [
+  // Massachusetts & Hudson Valley Regional Matchups
+  {
+    id: 'pair-ma-holyoke-mghpcc-vs-westfield-cold',
+    title: 'Pioneer Valley Hydro Compute vs. Cold Storage: MGHPCC Holyoke vs. C&S Westfield',
+    difficulty: 'hard',
+    categoryTag: 'Enterprise Data Center vs. Cold Storage',
+    comparisonLesson: 'In Massachusetts’ Pioneer Valley, MGHPCC in Holyoke sits right on the hydroelectric canal with a compact rooftop cooling tower array and generator yard, while C&S Wholesale in Westfield has rooftop ammonia freezer pipes surrounded by 90+ semi-trailer loading docks.',
+    dataCenter: EXPANDED_FACILITY_LOCATIONS.find(f => f.id === 'dc-ma-mghpcc-holyoke')!,
+    decoy: EXPANDED_FACILITY_LOCATIONS.find(f => f.id === 'decoy-ma-cs-wholesale-westfield')!
+  },
+  {
+    id: 'pair-ma-pittsfield-hpc-vs-lee-mfg',
+    title: 'Berkshires Recon: Pittsfield Defense HPC Center vs. Lee Precision Manufacturing',
+    difficulty: 'medium',
+    categoryTag: 'Enterprise Data Center vs. Manufacturing',
+    comparisonLesson: 'Just north of Litchfield County in the Berkshires, the Pittsfield HPC center is fed by an adjacent 115 kV substation and chilled-water plant inside a double-gated perimeter, whereas the Lee manufacturing plant has skylights and standard shipping docks.',
+    dataCenter: EXPANDED_FACILITY_LOCATIONS.find(f => f.id === 'dc-ma-gdms-pittsfield-hpc')!,
+    decoy: EXPANDED_FACILITY_LOCATIONS.find(f => f.id === 'decoy-ma-boyd-lee-berkshires')!
+  },
+  {
+    id: 'pair-ma-bedford-dlr-vs-wilmington-adi',
+    title: 'Route 128 Corridor: Digital Realty Bedford COLO vs. Analog Devices Campus',
+    difficulty: 'medium',
+    categoryTag: 'Colocation (COLO) vs. Semiconductor Fab',
+    comparisonLesson: 'Digital Realty Bedford has 40+ uniform rooftop cooling units and a row of green diesel generators, while Analog Devices in Wilmington has large employee parking lots and cleanroom nitrogen tanks.',
+    dataCenter: EXPANDED_FACILITY_LOCATIONS.find(f => f.id === 'dc-ma-digital-realty-bedford')!,
+    decoy: EXPANDED_FACILITY_LOCATIONS.find(f => f.id === 'decoy-analog-devices-wilmington')!
+  },
+  {
+    id: 'pair-ny-poughkeepsie-ibm-vs-fishkill-gap',
+    title: 'Mid-Hudson Valley: IBM Poughkeepsie Quantum/Mainframe Center vs. Fishkill Fulfillment',
+    difficulty: 'easy',
+    categoryTag: 'Enterprise Data Center vs. Distribution',
+    comparisonLesson: 'IBM Poughkeepsie features chilled-water pipe bridges and a 115 kV Central Hudson substation feeding windowless mainframe/quantum halls, while Gap’s Fishkill complex is surrounded by hundreds of 53-foot trailers.',
+    dataCenter: EXPANDED_FACILITY_LOCATIONS.find(f => f.id === 'dc-ny-ibm-poughkeepsie-mainframe')!,
+    decoy: EXPANDED_FACILITY_LOCATIONS.find(f => f.id === 'decoy-ny-gap-fishkill-dist')!
+  },
+  {
+    id: 'pair-ny-fishkill-colo-vs-onsemi-fab',
+    title: 'East Fishkill iPark 84 Showdown: Colocation Data Hall vs. 300mm Wafer Fab',
+    difficulty: 'hard',
+    categoryTag: 'Colocation (COLO) vs. Semiconductor Fab',
+    comparisonLesson: 'Located on the same Hudson Valley technology campus in East Fishkill: the data center hall pairs rooftop chillers with backup generator pads, while the 300mm wafer fab is identified by tall cryogenic nitrogen separation towers and chemical scrubbers.',
+    dataCenter: EXPANDED_FACILITY_LOCATIONS.find(f => f.id === 'dc-ny-ipark84-fishkill-colo')!,
+    decoy: EXPANDED_FACILITY_LOCATIONS.find(f => f.id === 'decoy-ny-onsemi-fishkill-fab')!
+  },
+  {
+    id: 'pair-ny-orangeburg-bloomberg-vs-regeneron',
+    title: 'Hudson Valley Scale: Bloomberg Orangeburg Financial Data Center vs. Regeneron Campus',
+    difficulty: 'easy',
+    categoryTag: 'Enterprise Data Center vs. Corporate Office',
+    comparisonLesson: 'Bloomberg’s 32 MW Orangeburg data center is topped with regimented rows of chillers and 16+ diesel generators with almost no cars, while Regeneron’s Hudson Valley campus has massive multi-story employee parking decks.',
+    dataCenter: EXPANDED_FACILITY_LOCATIONS.find(f => f.id === 'dc-ny-bloomberg-orangeburg')!,
+    decoy: EXPANDED_FACILITY_LOCATIONS.find(f => f.id === 'decoy-ny-regeneron-east-greenbush')!
+  },
   // Additional Connecticut Matchups (Non-Hyperscaler)
   {
     id: 'pair-ct-norwalk-tierpoint-vs-merritt7-office',

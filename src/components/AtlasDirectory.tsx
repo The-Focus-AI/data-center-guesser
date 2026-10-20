@@ -14,7 +14,16 @@ interface AtlasDirectoryProps {
   onToggleExcludeHyperscalers: () => void;
   zoningSubtypeFilter: DataCenterSubtype | 'all';
   onChangeZoningSubtypeFilter: (val: DataCenterSubtype | 'all') => void;
+  initialSearchQuery?: string;
+  initialTypeFilter?: 'all' | 'datacenter' | 'decoy';
+  initialSubtypeFilter?: string;
+  initialDifficultyFilter?: DifficultyLevel | 'all';
+  onChangeSearchQuery?: (q: string) => void;
+  onChangeTypeFilter?: (t: 'all' | 'datacenter' | 'decoy') => void;
+  onChangeSubtypeFilter?: (st: string) => void;
+  onChangeDifficultyFilter?: (d: DifficultyLevel | 'all') => void;
   onPlayFacility: (facility: FacilityLocation) => void;
+  onInspectPowerGrid?: (facility: FacilityLocation) => void;
 }
 
 export function AtlasDirectory({
@@ -24,12 +33,25 @@ export function AtlasDirectory({
   onToggleExcludeHyperscalers,
   zoningSubtypeFilter,
   onChangeZoningSubtypeFilter,
+  initialSearchQuery = '',
+  initialTypeFilter = 'all',
+  initialSubtypeFilter = 'all',
+  initialDifficultyFilter = 'all',
+  onChangeSearchQuery,
+  onChangeTypeFilter,
+  onChangeSubtypeFilter,
+  onChangeDifficultyFilter,
   onPlayFacility,
+  onInspectPowerGrid,
 }: AtlasDirectoryProps) {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [typeFilter, setTypeFilter] = useState<'all' | 'datacenter' | 'decoy'>('all');
-  const [subtypeFilter, setSubtypeFilter] = useState<string>('all');
-  const [difficultyFilter, setDifficultyFilter] = useState<DifficultyLevel | 'all'>('all');
+  const [searchQuery, setSearchQuery] = useState(initialSearchQuery);
+  const [typeFilter, setTypeFilter] = useState<'all' | 'datacenter' | 'decoy'>(
+    initialTypeFilter
+  );
+  const [subtypeFilter, setSubtypeFilter] = useState<string>(initialSubtypeFilter);
+  const [difficultyFilter, setDifficultyFilter] = useState<DifficultyLevel | 'all'>(
+    initialDifficultyFilter
+  );
 
   const allSubtypes = useMemo(() => {
     const set = new Set<string>();
@@ -39,7 +61,16 @@ export function AtlasDirectory({
 
   const filteredLocations = useMemo(() => {
     return FACILITY_LOCATIONS.filter((loc) => {
-      if (connecticutOnly && !loc.stateOrCountry.includes('CT')) return false;
+      if (
+        connecticutOnly &&
+        !(
+          loc.stateOrCountry.includes('CT') ||
+          loc.stateOrCountry.includes('MA') ||
+          loc.stateOrCountry.includes('NY')
+        )
+      ) {
+        return false;
+      }
       if (
         excludeHyperscalers &&
         loc.isDataCenter &&
@@ -132,7 +163,7 @@ export function AtlasDirectory({
               : 'bg-transparent text-zinc-400 border-zinc-800 hover:border-zinc-600 hover:text-zinc-200'
           }`}
         >
-          CT ONLY {connecticutOnly ? '[×]' : ''}
+          CT · MA · HUDSON VALLEY {connecticutOnly ? '[×]' : ''}
         </button>
 
         <button
@@ -174,7 +205,10 @@ export function AtlasDirectory({
           <input
             type="text"
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={(e) => {
+              setSearchQuery(e.target.value);
+              onChangeSearchQuery?.(e.target.value);
+            }}
             placeholder="SEARCH CITY, OPERATOR, ADDRESS..."
             className="w-full pl-10 pr-4 py-3 bg-transparent font-mono text-xs text-zinc-100 placeholder:text-zinc-600 focus:outline-none"
           />
@@ -183,7 +217,10 @@ export function AtlasDirectory({
         <div className="flex divide-x divide-zinc-800 font-mono text-[11px] uppercase">
           <button
             type="button"
-            onClick={() => setTypeFilter('all')}
+            onClick={() => {
+              setTypeFilter('all');
+              onChangeTypeFilter?.('all');
+            }}
             className={`flex-1 py-3 transition cursor-pointer ${
               typeFilter === 'all'
                 ? 'bg-zinc-900 text-white font-semibold'
@@ -194,7 +231,10 @@ export function AtlasDirectory({
           </button>
           <button
             type="button"
-            onClick={() => setTypeFilter('datacenter')}
+            onClick={() => {
+              setTypeFilter('datacenter');
+              onChangeTypeFilter?.('datacenter');
+            }}
             className={`flex-1 py-3 transition cursor-pointer ${
               typeFilter === 'datacenter'
                 ? 'bg-zinc-900 text-emerald-400 font-semibold'
@@ -205,7 +245,10 @@ export function AtlasDirectory({
           </button>
           <button
             type="button"
-            onClick={() => setTypeFilter('decoy')}
+            onClick={() => {
+              setTypeFilter('decoy');
+              onChangeTypeFilter?.('decoy');
+            }}
             className={`flex-1 py-3 transition cursor-pointer ${
               typeFilter === 'decoy'
                 ? 'bg-zinc-900 text-zinc-200 font-semibold'
@@ -219,7 +262,10 @@ export function AtlasDirectory({
         <div>
           <select
             value={subtypeFilter}
-            onChange={(e) => setSubtypeFilter(e.target.value)}
+            onChange={(e) => {
+              setSubtypeFilter(e.target.value);
+              onChangeSubtypeFilter?.(e.target.value);
+            }}
             className="w-full h-full px-4 py-3 bg-[#09090b] font-mono text-xs text-zinc-300 focus:outline-none cursor-pointer"
           >
             <option value="all">CATEGORY: ALL SUBTYPES</option>
@@ -234,7 +280,11 @@ export function AtlasDirectory({
         <div>
           <select
             value={difficultyFilter}
-            onChange={(e) => setDifficultyFilter(e.target.value as DifficultyLevel | 'all')}
+            onChange={(e) => {
+              const val = e.target.value as DifficultyLevel | 'all';
+              setDifficultyFilter(val);
+              onChangeDifficultyFilter?.(val);
+            }}
             className="w-full h-full px-4 py-3 bg-[#09090b] font-mono text-xs text-zinc-300 focus:outline-none cursor-pointer"
           >
             <option value="all">DIFFICULTY: ALL TIERS</option>
@@ -325,14 +375,26 @@ export function AtlasDirectory({
               </div>
             </div>
 
-            <div className="mt-6 pt-3 border-t border-zinc-800/80 flex items-center justify-between font-mono text-[11px]">
-              <button
-                type="button"
-                onClick={() => onPlayFacility(loc)}
-                className="text-zinc-100 hover:text-emerald-400 font-medium uppercase tracking-wider transition cursor-pointer"
-              >
-                [INSPECT IN ARENA →]
-              </button>
+            <div className="mt-6 pt-3 border-t border-zinc-800/80 flex items-center justify-between gap-2 font-mono text-[11px]">
+              <div className="flex items-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => onPlayFacility(loc)}
+                  className="text-zinc-100 hover:text-emerald-400 font-medium uppercase tracking-wider transition cursor-pointer"
+                >
+                  [INSPECT IN ARENA →]
+                </button>
+
+                {loc.isDataCenter && onInspectPowerGrid && (
+                  <button
+                    type="button"
+                    onClick={() => onInspectPowerGrid(loc)}
+                    className="text-amber-400 hover:text-amber-300 font-medium uppercase tracking-wider transition cursor-pointer"
+                  >
+                    [⚡ GRID TIE-IN]
+                  </button>
+                )}
+              </div>
 
               <a
                 href={`https://www.google.com/maps/@${loc.lat},${loc.lng},18z/data=!3m1!1e3`}
